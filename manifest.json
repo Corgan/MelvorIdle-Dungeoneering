@@ -1,0 +1,4 @@
+{
+  "namespace": "dungeoneering",
+  "setup": "setup.mjs"
+}

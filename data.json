@@ -1,0 +1,142 @@
+{
+  "$schema": "https://melvoridle.com/assets/schema/gameData.json",
+  "namespace": "dungeoneering",
+  "data": {
+    "pages": [
+      {
+        "id": "Dungeoneering",
+        "media": "assets/dungeoneering.png",
+        "containerID": "dungeoneering-container",
+        "headerBgClass": "bg-combat",
+        "hasGameGuide": false,
+        "canBeDefault": true,
+        "customName": "Dungeoneering",
+        "skillSidebarCategoryID": "Passive",
+        "skills": [
+          "dungeoneering:Dungeoneering"
+        ]
+      }
+    ],
+    "pets": [
+      {
+        "id": "Mimic",
+        "name": "Mimic",
+        "media": "assets/mimic.png",
+        "ignoreCompletion": false,
+        "modifiers": {
+          "increasedDamageReductionAgainstBosses": 1
+        },
+        "activeInRaid": false,
+        "scaleChanceWithMasteryPool": false,
+        "hint": "Dungeoneering"
+      }
+    ],
+    "ancientRelics": [
+        {
+            "id": "DungeoneeringRelic1",
+            "name": "Dungeoneering Relic 1 (NYI)",
+            "skillID": "dungeoneering:Dungeoneering",
+            "number": 1,
+            "description": "A relic from the ancient times of dungeoneering.",
+            "modifiers": {
+              
+            }
+        },
+        {
+            "id": "DungeoneeringRelic2",
+            "name": "Dungeoneering Relic 2 (NYI)",
+            "skillID": "dungeoneering:Dungeoneering",
+            "number": 2,
+            "description": "A relic from the ancient times of dungeoneering.",
+            "modifiers": {
+            }
+        },
+        {
+            "id": "DungeoneeringRelic3",
+            "name": "Dungeoneering Relic 3 (NYI)",
+            "skillID": "dungeoneering:Dungeoneering",
+            "number": 3,
+            "description": "A relic from the ancient times of dungeoneering.",
+            "modifiers": {
+            }
+        },
+        {
+            "id": "DungeoneeringRelic4",
+            "name": "Dungeoneering Relic 4 (NYI)",
+            "skillID": "dungeoneering:Dungeoneering",
+            "number": 4,
+            "description": "A relic from the ancient times of dungeoneering.",
+            "modifiers": {
+            }
+        },
+        {
+            "id": "DungeoneeringRelic5",
+            "name": "Dungeoneering Relic 5 (NYI)",
+            "skillID": "dungeoneering:Dungeoneering",
+            "number": 5,
+            "description": "A relic from the ancient times of dungeoneering.",
+            "modifiers": {
+            }
+        },
+        {
+            "id": "DungeoneeringRelic6",
+            "name": "Dungeoneering Master Relic (NYI)",
+            "skillID": "dungeoneering:Dungeoneering",
+            "number": 6,
+            "description": "A relic from the ancient times of dungeoneering.",
+            "modifiers": {
+            }
+        }
+    ],
+    "skillData": [
+      {
+        "skillID": "dungeoneering:Dungeoneering",
+        "data": {
+          "completedAncientRelic": "dungeoneering:DungeoneeringRelic6",
+          "ancientRelics": [
+              {
+                  "relicID": "dungeoneering:DungeoneeringRelic1",
+                  "requirements": [],
+                  "chance": {
+                      "type": "Fixed",
+                      "chance": 0.0005
+                  }
+              },
+              {
+                  "relicID": "dungeoneering:DungeoneeringRelic2",
+                  "requirements": [],
+                  "chance": {
+                      "type": "Fixed",
+                      "chance": 0.0005
+                  }
+              },
+              {
+                  "relicID": "dungeoneering:DungeoneeringRelic3",
+                  "requirements": [],
+                  "chance": {
+                      "type": "Fixed",
+                      "chance": 0.0005
+                  }
+              },
+              {
+                  "relicID": "dungeoneering:DungeoneeringRelic4",
+                  "requirements": [],
+                  "chance": {
+                      "type": "Fixed",
+                      "chance": 0.0005
+                  }
+              },
+              {
+                  "relicID": "dungeoneering:DungeoneeringRelic5",
+                  "requirements": [],
+                  "chance": {
+                      "type": "Fixed",
+                      "chance": 0.0005
+                  }
+              }
+          ]
+        }
+      }
+    ]
+  }
+}

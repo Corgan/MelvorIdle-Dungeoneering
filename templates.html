@@ -1,0 +1,61 @@
+<template id="dungeoneering-page-component">
+  <div class="content d-none" id="enchanting-container">
+    <div class="skill-info">
+      <div class="block block-rounded" id="skill-header-dungeoneering:Dungeoneering">
+        <div class="progress active mb-1 border border-top border-1x border-dark" style="height: 8px">
+          <div class="progress-bar bg-info" id="skill-progress-bar-dungeoneering:Dungeoneering" role="progressbar"
+            style="width: 0%;"></div>
+        </div>
+        <div class="block-header text-center pt-0 pb-0">
+          <ul class="nav-main nav-main-horizontal nav-main-horizontal-override font-size-xs w-100">
+            <li class="m-1" style="min-width: 45%;">
+              <span class="font-w600">
+                <lang-string lang-id="MENU_TEXT_SKILL_LEVEL"></lang-string>
+              </span>
+              <span class="p-1 bg-success rounded font-w600" id="skill-progress-level-dungeoneering:Dungeoneering">1 / 99</span>
+            </li>
+            <li class="m-1" style="min-width: 45%">
+              <span class="font-w600">
+                <lang-string lang-id="MENU_TEXT_SKILL XP"></lang-string>
+              </span>
+              <span class="p-1 bg-info rounded font-w600" id="skill-progress-xp-dungeoneering:Dungeoneering">1 / 99</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row row-deck gutters-tiny">
+      <div class="col-12">
+        <div id="page" class="block block-rounded border-top border-success border-4x p-3">
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template>
+  <div class="col-12 col-md-6 col-xl-4">
+    <a class="block block-content block-rounded block-link-pop border-top border-combat border-4x pointer-enabled" id="combat-select-Dungeon" onclick="showCombatArea('Dungeon')">
+      <div class="media d-flex align-items-center push">
+        <div class="mr-3">
+          <img class="shop-img" src="assets/media/skills/combat/dungeon.svg">
+        </div>
+        <div class="media-body">
+          <div class="font-w600">
+            <span>Dungeoneering Dungeons</span>
+          </div>
+          <div class="font-size-sm">
+            <small>
+              <lang-string lang-id="COMBAT_MISC_7">Fight various Monsters and Bosses</lang-string>
+            </small>
+          </div>
+          <div class="font-size-sm">
+            <small>
+              <lang-string lang-id="COMBAT_MISC_8">High value rewards found here</lang-string>
+            </small>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+</template>
