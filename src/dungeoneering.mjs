@@ -6,19 +6,18 @@ class DungeoneeringCombatAreaMenuElement extends CombatAreaMenuElement {
     constructor() {
         super();
     }
-    setAreaEffect(area) {
-      if (area instanceof DungeoneeringPortalDungeon) {
-        showElement(this.areaEffectContainer);
-        if (area.areaEffect === undefined) {
-          this.areaEffectContainer.classList.replace('text-danger', 'text-success');
-          this.effectDescription.textContent = getLangString('COMBAT_MISC_NO_AREA_EFFECT');
+    toggleOptions(area) {
+        super.toggleOptions(area);
+        if(this.isOpen) {
+            this.effectDescription.innerHTML = `Click to hide modifiers ${area.areaEffectDescription}`;
         } else {
-          this.areaEffectContainer.classList.replace('text-success', 'text-danger');
-          this.effectDescription.textContent = area.areaEffectDescription;
+            this.effectDescription.innerHTML = 'Click to see modifiers';
         }
-      } else {
-        hideElement(this.areaEffectContainer);
-      }
+    }
+    setAreaEffect(area) {
+        showElement(this.areaEffectContainer);
+        this.areaEffectContainer.classList.replace('text-success', 'text-danger');
+        this.effectDescription.innerHTML = 'Click to see modifiers';
     }
 }
 window.customElements.define('dungeoneering-combat-area-menu', DungeoneeringCombatAreaMenuElement);
@@ -71,20 +70,66 @@ class DungeoneeringPortalDungeon extends Dungeon {
     }
     
     get areaEffectDescription() {
-        return `${describeModifierDataPlain(this.modifiers)}, ${describeModifierDataPlain(this.enemyModifiers)}`;
+        return `</br>Player:</br>${describeModifierDataPlainLineBreak(this.modifiers)}</br>Enemy:</br>${describeModifierDataPlainLineBreak(this.enemyModifiers)}`;
     }
 
     set modifiers(_) { }
     get modifiers() {
-        return {
-            "decreasedHitpointRegeneration": 100
-        }
+        if(this._modifiers === undefined)
+            this.generateModifiers();
+        return this._modifiers;
     }
 
     set enemyModifiers(_) { }
     get enemyModifiers() {
-        return {
-            "increasedDamageReduction": 10
+        if(this._enemyModifiers === undefined)
+            this.generateEnemyModifiers();
+        return this._enemyModifiers;
+    }
+
+    get possibleModifiers() {
+        return [
+            ["decreasedHitpointRegeneration", 100],
+            ["decreasedMaxHitPercent", 50],
+            ["decreasedDamageToBosses", 25],
+            ["decreasedAutoEatThreshold", 15],
+            ["decreasedFoodHealingValue", 50],
+            ["increasedAttackIntervalPercent", 25],
+            ["decreasedMaxHitpoints", 10],
+            ["increasedPrayerCost", 200]
+        ]
+    }
+
+    get possibleEnemyModifiers() {
+        return [
+            ["increasedDamageReduction", 10],
+            ["increasedMaxHitPercent", 100],
+            ["decreasedAttackIntervalPercent", 25],
+            ["increasedMaxHitpoints", 100],
+            ["increasedLifesteal", 25],
+            ["increasedReflectDamage", 25],
+            ["increasedAfflictionChance", 25],
+            ["increasedMeleeEvasion", 20],
+            ["increasedRangedEvasion", 20],
+            ["increasedMagicEvasion", 20]
+        ]
+    }
+
+    generateModifiers() {
+        if(this._modifiers === undefined)
+            this._modifiers = {};
+        for(let i=0; i<rollInteger(1, 4); i++) {
+            let [mod, val] = getRandomArrayElement(this.possibleModifiers);
+            this._modifiers[mod] = val;
+        }
+    }
+
+    generateEnemyModifiers() {
+        if(this._enemyModifiers === undefined)
+            this._enemyModifiers = {};
+        for(let i=0; i<rollInteger(1, 4); i++) {
+            let [mod, val] = getRandomArrayElement(this.possibleEnemyModifiers);
+            this._enemyModifiers[mod] = val;
         }
     }
 
@@ -154,7 +199,8 @@ export class Dungeoneering extends SkillWithMastery {
         this.modifiers.reset();
         this.enemyModifiers.reset();
         if(game.combat.selectedArea instanceof DungeoneeringPortalDungeon) {
-            console.log(game.combat.selectedArea);
+            this.modifiers.addModifiers(game.combat.selectedArea.modifiers);
+            this.enemyModifiers.addModifiers(game.combat.selectedArea.enemyModifiers);
         }
     }
 
