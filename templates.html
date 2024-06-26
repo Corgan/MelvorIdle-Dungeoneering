@@ -1,61 +1,177 @@
-<template id="dungeoneering-page-component">
-  <div class="content d-none" id="enchanting-container">
-    <div class="skill-info">
-      <div class="block block-rounded" id="skill-header-dungeoneering:Dungeoneering">
-        <div class="progress active mb-1 border border-top border-1x border-dark" style="height: 8px">
-          <div class="progress-bar bg-info" id="skill-progress-bar-dungeoneering:Dungeoneering" role="progressbar"
-            style="width: 0%;"></div>
+<template id="dungeoneering-page-template">
+  <div class="skill-info">
+    <skill-header data-skill-id="dungeoneering:Dungeoneering"></skill-header>
+  </div>
+  <div class="row row-deck">
+    <div class="col-12">
+      <div class="block block-rounded block-link-pop border-top border-shop border-4x">
+        <div class="block-header text-center p-1">
+            <div class="col-12 p-0">
+                    <div class="row">
+                        <div class="col-12 p-0">
+                            <h5 class="font-size-xs m-0">
+                                <lang-string lang-id="SHOP_MISC_1">You Have</lang-string>
+                                <span class="p-2 bg-secondary text-white rounded m-1 js-tooltip-enabled" data-currency-tooltip="dungeoneering:DungeonCoins" data-toggle="tooltip" data-html="true" data-placement="bottom" title="">
+                                    <img class="skill-icon-xs" data-currency-media="dungeoneering:DungeonCoins">
+                                    <span data-currency-quantity="dungeoneering:DungeonCoins">0</span>
+                                </span>
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="block-header text-center pt-0 pb-0">
-          <ul class="nav-main nav-main-horizontal nav-main-horizontal-override font-size-xs w-100">
-            <li class="m-1" style="min-width: 45%;">
-              <span class="font-w600">
-                <lang-string lang-id="MENU_TEXT_SKILL_LEVEL"></lang-string>
-              </span>
-              <span class="p-1 bg-success rounded font-w600" id="skill-progress-level-dungeoneering:Dungeoneering">1 / 99</span>
-            </li>
-            <li class="m-1" style="min-width: 45%">
-              <span class="font-w600">
-                <lang-string lang-id="MENU_TEXT_SKILL XP"></lang-string>
-              </span>
-              <span class="p-1 bg-info rounded font-w600" id="skill-progress-xp-dungeoneering:Dungeoneering">1 / 99</span>
-            </li>
-          </ul>
-        </div>
-      </div>
     </div>
-    <div class="row row-deck gutters-tiny">
-      <div class="col-12">
-        <div id="page" class="block block-rounded border-top border-success border-4x p-3">
+    <category-menu class="col-12" id="dungeoneering-category-menu"></category-menu>
+    <div class="col-12">
+      <div class="col-12 p-0" id="dungeoneering-category-container">
+        <div id="portals-category" class="col-12 p-0">
+          <div class="block block-rounded block-link-pop border-top border-smithing border-4x">
+            <div class="row no-gutters">
+              <div class="col-12 col-md-4">
+                <dungeoneering-portal-menu id="dungeoneering-portal-menu"></dungeoneering-portal-menu>
+              </div>
+              <div class="col-12 col-md-8">
+                <dungeoneering-portal-selection-tab id="dungeoneering-portal-selection-tab"></dungeoneering-portal-selection-tab>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="upgrades-category" class="col-12 p-0 d-none">
+          <div class="row" id="dungeoneering-category-container">
+            <div class="col-4">
+              <div class="block block-rounded block-link-pop border-top border-success border-4x">
+                <h5 class="p-2 mb-0 text-center">Dungeoneering Buffs</h5>
+                <div class="p-3" id="upgrade-modifiers">
+                </div>
+              </div>
+            </div>
+            <div class="col-8">
+              <div id="upgrades" class="row"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<template>
-  <div class="col-12 col-md-6 col-xl-4">
-    <a class="block block-content block-rounded block-link-pop border-top border-combat border-4x pointer-enabled" id="combat-select-Dungeon" onclick="showCombatArea('Dungeon')">
-      <div class="media d-flex align-items-center push">
-        <div class="mr-3">
-          <img class="shop-img" src="assets/media/skills/combat/dungeon.svg">
+<template id="dungeoneering-portal-selection-tab-template">
+  <div class="block-content">
+    <div class="row" id="portal-container"></div>
+  </div>
+</template>
+
+<template id="dungeoneering-portal-template">
+  <ul class="nav nav-pills nav-justified">
+    <li class="nav-item mr-1">
+      <a id="portal" class="block block-link-pop nav-link border pointer-enabled font-w600 mb-1">
+        <div class="media d-flex align-items-center push mb-0">
+          <div class="mr-2">
+            <img id="icon" class="shop-img">
+          </div>
+          <div class="media-body text-left">
+            <div><span id="name"></span></div>
+          </div>
         </div>
-        <div class="media-body">
-          <div class="font-w600">
-            <span>Dungeoneering Dungeons</span>
+      </a>
+    </li>
+  </ul>
+</template>
+
+<template id="dungeoneering-upgrade-template">
+  <div class="block block-rounded block-link-pop border-top border-success border-4x">
+    <div class="block-content block-content-full">
+      <div class="font-size-sm font-w600 text-center text-muted">
+        <small id="rank" class="text-warning"></small><small id="max" class="text-warning d-none"></small>
+        <br>
+        <span id="name" class="text-success"></span>
+      </div>
+      <div class="font-size-h2 font-w400 text-center text-dark">
+        <img id="icon" class="m-2" style="width:64px;">
+      </div>
+      <div id="modifiers" class="font-size-sm font-w600 text-center text-muted">
+      </div>
+      <div class="text-center p-1">
+        <button id="upgrade" role="button" class="btn btn-sm btn-primary">
+          <span>Upgrade</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="dungeoneering-portal-menu-template">
+  <div class="col-12 px-0">
+    <div class="block-content block-content-full">
+      <div class="row gutters-tiny">
+        <div class="col-12">
+          <div class="row row-deck gutters-tiny">
+            <div class="col-4">
+              <div class="block block-rounded-double bg-combat-inner-dark text-center p-3">
+                <img class="bank-img-detail" id="portal-image">
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="block block-rounded-double bg-combat-inner-dark pt-2 pl-2 pr-2 pb-1">
+                <h5 class="font-size-sm font-w600 text-muted m-1">
+                  <small id="portal-action">
+                    <lang-string lang-id="MENU_TEXT_CREATE"></lang-string>
+                  </small>
+                </h5>
+                <h5 class="font-w700 text-left text-combat-smoke m-1">
+                  <span id="portal-name">-</span>
+                </h5>
+                <h5 class="font-w400 font-size-sm text-left text-bank-desc m-1 mb-2">
+                  <small id="portal-description"></small>
+                </h5>
+              </div>
+            </div>
           </div>
-          <div class="font-size-sm">
-            <small>
-              <lang-string lang-id="COMBAT_MISC_7">Fight various Monsters and Bosses</lang-string>
-            </small>
+          <div id="create-row" class="col-12 block block-rounded-double bg-combat-inner-dark pt-2 pb-1 text-center">
+            <div class="row no-gutters">
+              <dungeoneering-portal-create-box class="col-12 pb-2 icon-size-48" id="create-box"></dungeoneering-portal-create-box>
+            </div>
           </div>
-          <div class="font-size-sm">
-            <small>
-              <lang-string lang-id="COMBAT_MISC_8">High value rewards found here</lang-string>
-            </small>
+          <div id="reroll-row" class="col-12 block block-rounded-double bg-combat-inner-dark pt-2 pb-1 text-center d-none">
+            <div class="row no-gutters">
+              <dungeoneering-portal-reroll-box class="col-12 pb-2 icon-size-48" id="reroll-box"></dungeoneering-portal-reroll-box>
+            </div>
+          </div>
+          <div class="col-12 block block-rounded-double bg-combat-inner-dark p-3 text-center">
+            <div class="row justify-content-center icon-size-48">
+              <div>
+                <button class="btn btn-success m-1 p-2" type="button" style="height: 48px;" id="create-button">
+                  <lang-string lang-id="MENU_TEXT_CREATE"></lang-string>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </a>
+    </div>
+  </div>
+</template>
+
+<template id="dungeoneering-portal-reroll-radio-template">
+  <div class="custom-control custom-radio mb-1 mx-2">
+    <input class="custom-control-input pointer-enabled" type="radio" id="input">
+    <label class="custom-control-label pointer-enabled font-w400" id="label"></label>
+  </div>
+</template>
+
+<template id="dungeoneering-portal-reroll-box-template">
+  <div class="col-12 pb-2">
+    <div id="radio-container" class="row no-gutters justify-content-center">
+      <h5 id="player-header" class="font-w600 font-size-sm mb-1 text-center">Player:</h5>
+      <h5 id="enemy-header" class="font-w600 font-size-sm mb-1 text-center">Enemy:</h5>
+    </div>
+  </div>
+</template>
+
+<template id="dungeoneering-portal-create-box-template">
+  <div class="col-12 pb-2">
+    <h5 id="name" class="font-w600 font-size-sm mb-1 text-center"></h5>
+    <div id="create-container" class="row no-gutters justify-content-left"></div>
   </div>
 </template>

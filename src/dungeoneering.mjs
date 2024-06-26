@@ -1,171 +1,34 @@
 const { loadModule, getResourceUrl, version } = mod.getContext(import.meta);
 
-const { DungeoneeringPageUIComponent } = await loadModule('src/components/dungeoneering.mjs');
+const { DungeoneeringPortalDungeon } = await loadModule('src/dungeoneering-portal-dungeon.mjs');
+const { DungeoneeringDimension } = await loadModule('src/dungeoneering-dimension.mjs');
+const { DungeoneeringUpgrade } = await loadModule('src/dungeoneering-upgrade.mjs');
+const { DungeoneeringCoins } = await loadModule('src/dungeoneering-coins.mjs');
 
-class DungeoneeringCombatAreaMenuElement extends CombatAreaMenuElement {
+const { DungeoneeringPageElement } = await loadModule('src/components/dungeoneering-page.mjs');
+
+const { DungeoneeringCombatAreaMenuElement } = await loadModule('src/components/dungeoneering-combat-area-menu.mjs');
+const { DungeoneeringPortalMenuElement } = await loadModule('src/components/dungeoneering-portal-menu.mjs');
+
+const { DungeoneeringPortalSelectionTabElement } = await loadModule('src/components/dungeoneering-portal-selection-tab.mjs');
+
+const { DungeoneeringPortalCreateBoxElement } = await loadModule('src/components/dungeoneering-portal-create-box.mjs');
+const { DungeoneeringPortalRerollBoxElement } = await loadModule('src/components/dungeoneering-portal-reroll-box.mjs');
+const { DungeoneeringPortalRerollRadioElement } = await loadModule('src/components/dungeoneering-portal-reroll-radio.mjs');
+
+const { DungeoneeringUpgradeElement } = await loadModule('src/components/dungeoneering-upgrade.mjs');
+const { DungeoneeringPortalElement } = await loadModule('src/components/dungeoneering-portal.mjs');
+
+class DungeoneeringRenderQueue extends SkillRenderQueue {
     constructor() {
         super();
-    }
-    toggleOptions(area) {
-        super.toggleOptions(area);
-        if(this.isOpen) {
-            this.effectDescription.innerHTML = `Click to hide modifiers ${area.areaEffectDescription}`;
-        } else {
-            this.effectDescription.innerHTML = 'Click to see modifiers';
-        }
-    }
-    setAreaEffect(area) {
-        showElement(this.areaEffectContainer);
-        this.areaEffectContainer.classList.replace('text-success', 'text-danger');
-        this.effectDescription.innerHTML = 'Click to see modifiers';
-    }
-}
-window.customElements.define('dungeoneering-combat-area-menu', DungeoneeringCombatAreaMenuElement);
-class DungeoneeringPortalDungeon extends Dungeon {
-    constructor({id='p' + Math.random().toString(36).slice(-5)}, manager, game) {
-        super(game.registeredNamespaces.getNamespace('dungeoneering'), {
-            id,
-            name: '',
-            media: "assets/dungeoneering.png",
-            monsterIDs: [],
-            difficulty: [0],
-            entryRequirements: [],
-            rewardItemIDs: [],
-            dropBones: false,
-            pet: {
-                petID: 'dungeoneering:Mimic',
-                weight: 20000
-            },
-            fixedPetClears: false,
-            pauseOnBosses: false,
-            skillUnlockCompletions: 0
-        }, game);
-        this.manager = manager;
-        this.game = game;
-        this._monsters = [];
-        this._floors = [];
-    }
-
-    set clears(_) { }
-    get clears() { return 5; }
-
-    set clearCount(_) { }
-    get clearCount() { return 0; }
-
-    set name(_) { }
-    get name() {
-        return `Dungeoneering Dungeon ${this._localID}`;
-    }
-
-    set monsters(_) { }
-    get monsters() {
-        if(this._monsters.length === 0)
-            this.generateMonsters();
-        return this._monsters;
-    }
-
-    set floors(_) { }
-    get floors() {
-        return this._floors;
-    }
-    
-    get areaEffectDescription() {
-        return `</br>Player:</br>${describeModifierDataPlainLineBreak(this.modifiers)}</br>Enemy:</br>${describeModifierDataPlainLineBreak(this.enemyModifiers)}`;
-    }
-
-    set modifiers(_) { }
-    get modifiers() {
-        if(this._modifiers === undefined)
-            this.generateModifiers();
-        return this._modifiers;
-    }
-
-    set enemyModifiers(_) { }
-    get enemyModifiers() {
-        if(this._enemyModifiers === undefined)
-            this.generateEnemyModifiers();
-        return this._enemyModifiers;
-    }
-
-    get possibleModifiers() {
-        return [
-            ["decreasedHitpointRegeneration", 100],
-            ["decreasedMaxHitPercent", 50],
-            ["decreasedDamageToBosses", 25],
-            ["decreasedAutoEatThreshold", 15],
-            ["decreasedFoodHealingValue", 50],
-            ["increasedAttackIntervalPercent", 25],
-            ["decreasedMaxHitpoints", 10],
-            ["increasedPrayerCost", 200]
-        ]
-    }
-
-    get possibleEnemyModifiers() {
-        return [
-            ["increasedDamageReduction", 10],
-            ["increasedMaxHitPercent", 100],
-            ["decreasedAttackIntervalPercent", 25],
-            ["increasedMaxHitpoints", 100],
-            ["increasedLifesteal", 25],
-            ["increasedReflectDamage", 25],
-            ["increasedAfflictionChance", 25],
-            ["increasedMeleeEvasion", 20],
-            ["increasedRangedEvasion", 20],
-            ["increasedMagicEvasion", 20]
-        ]
-    }
-
-    generateModifiers() {
-        if(this._modifiers === undefined)
-            this._modifiers = {};
-        for(let i=0; i<rollInteger(1, 4); i++) {
-            let [mod, val] = getRandomArrayElement(this.possibleModifiers);
-            this._modifiers[mod] = val;
-        }
-    }
-
-    generateEnemyModifiers() {
-        if(this._enemyModifiers === undefined)
-            this._enemyModifiers = {};
-        for(let i=0; i<rollInteger(1, 4); i++) {
-            let [mod, val] = getRandomArrayElement(this.possibleEnemyModifiers);
-            this._enemyModifiers[mod] = val;
-        }
-    }
-
-    generateMonsters(hasBarrier=false) {//, combatLevel=rollInteger(10, 4000)) {
-        this._floors = [];
-        const boss = getRandomArrayElement(game.monsters.allObjects.filter(monster => monster.isBoss && monster.hasBarrier === hasBarrier));
-        for(let i=0; i<rollInteger(4, 8); i++) {
-            let floorMonster = getRandomArrayElement(game.monsters.allObjects.filter(monster => !monster.isBoss && monster.combatLevel < boss.combatLevel && monster.hasBarrier === hasBarrier));
-            console.log(boss.combatLevel / floorMonster.combatLevel);
-            let floorMonsterCount = rollInteger(3, 8);
-            this._floors.push(floorMonsterCount);
-            for(let j=0; j<floorMonsterCount; j++) {
-                this._monsters.push(floorMonster);
-            }
-        }
-        this._floors.push(1);
-        this._monsters.push(boss);
-    }
-
-    encode(writer) {
-
-        return writer;
-    }
-
-    decode(reader, version) {
-
+        this.upgradeModifiers = false;
+        this.portals = false;
+        this.selectedPortal = false;
     }
 }
 
-class DungeoneeringRenderQueue extends MasterySkillRenderQueue {
-    constructor() {
-        super();
-    }
-}
-
-export class Dungeoneering extends SkillWithMastery {
+export class Dungeoneering extends Skill {
     constructor(namespace, game) {
         super(namespace, 'Dungeoneering', game);
         this.version = parseInt(version.split('.')[1]);
@@ -173,58 +36,200 @@ export class Dungeoneering extends SkillWithMastery {
         this._media = 'assets/dungeoneering.png';
         this.isActive = false;
 
+        this.coins = new DungeoneeringCoins(namespace, game);
+        game.currencies.registerObject(this.coins);
+
+        this.dimensions = new NamespaceRegistry(this.game.registeredNamespaces);
         this.portals = new NamespaceRegistry(this.game.registeredNamespaces);
+        this.upgrades = new NamespaceRegistry(this.game.registeredNamespaces);
 
         this.renderQueue = new DungeoneeringRenderQueue();
 
-        this.component = new DungeoneeringPageUIComponent();
+        this.modifiers = new ModifierTable();
+        this.enemyModifiers = new ModifierTable();
 
-        this.modifiers = new MappedModifiers();
-        this.enemyModifiers = new TargetModifiers();
+        this.upgradeRanks = new Map();
+        this.upgradeModifiers = new ModifierTable();
+
+        this.upgradeMenus = new Map();
+
+        this.baseMaxPortals = 10;
+
+        this.page = createElement('dungeoneering-page', {
+            id: 'dungeoneering-container',
+            classList: ['content', 'd-none']
+        });
     }
 
     get name() { return "Dungeoneering"; }
     get isCombat() { return false; }
     get hasMinibar() { return true; }
+    get maxPortals() { return this.baseMaxPortals; }
 
     getErrorLog() {
         return ``;
     }
-    
-    getTotalUnlockedMasteryActions() {
-        return this.actions.reduce(levelUnlockSum(this), 0);
+
+    portalMenuOnClick() {
+        if(this.portals.allObjects.length >= this.maxPortals) {
+            notifyPlayer(this.media, `Can't create more than ${this.maxPortals} portals.`, 'danger');
+            return;
+        }
+        this.createDungeoneeringPortal();
     }
 
-    onCombatSelection() {
-        this.modifiers.reset();
-        this.enemyModifiers.reset();
+    portalOnClick(portal, elem) {
+        if(this.selectedPortalElem !== undefined)
+            this.selectedPortalElem.setSelected(false);
+
+        if(this.selectedPortal !== portal) {
+            this.selectedPortal = portal;
+            this.selectedPortalElem = elem;
+            this.selectedPortalElem.setSelected(true);
+        } else {
+            this.selectedPortal = undefined;
+            this.selectedPortalElem = undefined;
+        }
+
+        this.page.portalMenu.setPortal(this.selectedPortal);
+        this.renderQueue.selectedPortal = true;
+    }
+
+    upgradeOnClick(upgrade) {
+        if(this.isDungeoneeringPortal(game.combat.selectedArea)) {
+            notifyPlayer(this.media, "Can't buy upgrades while in a portal.", 'danger');
+            return;
+        }
+        let menu = this.upgradeMenus.get(upgrade);
+        let rank = this.getRankForUpgrade(upgrade);
+
+        if(upgrade.max > 0 && rank >= upgrade.max) {
+            notifyPlayer(this.media, "Max rank reached.", 'danger');
+            return;
+        }
+
+        rank += 1;
+
+        this.upgradeRanks.set(upgrade, rank);
+        menu.setRank(rank);
+        
+        this.calculateModifiers();
+    }
+
+    getRankForUpgrade(upgrade) {
+        if(this.upgradeRanks.has(upgrade)) {
+            return this.upgradeRanks.get(upgrade);
+        }
+        return 0;
+    }
+    
+    calculateModifiers() {
+        this.upgradeModifiers.empty();
+        this.upgradeRanks.forEach((rank, upgrade) => {
+            this.upgradeModifiers.addModifiers(upgrade, upgrade.modifiers, rank, rank);
+        });
+        this.renderQueue.upgradeModifiers = true;
+    }
+
+    render() {
+        super.render();
+        this.renderUpgradeModifiers();
+        this.renderPortals();
+        this.renderSelectedPortal();
+    }
+
+    renderUpgradeModifiers() {
+        if(!this.renderQueue.upgradeModifiers)
+            return;
+        this.page.setUpgradeModifiers(this.upgradeModifiers);
+        this.renderQueue.upgradeModifiers = false;
+    }
+
+    renderSelectedPortal() {
+        if(!this.renderQueue.selectedPortal)
+            return;
+        this.page.portalsSelectionTab.options.forEach(option => {
+            option.portal.classList.toggle('bg-light-gray', option.selected);
+        });
+        this.renderQueue.selectedPortal = false;
+    }
+
+    renderPortals() {
+        if(!this.renderQueue.portals)
+            return;
+        this.page.portalsSelectionTab.setPortals(this.portals.allObjects);
+        this.renderQueue.portals = false;
+    }
+
+    onCombatSpawnEnemy() {
+        this.modifiers.empty();
+        this.enemyModifiers.empty();
         if(game.combat.selectedArea instanceof DungeoneeringPortalDungeon) {
-            this.modifiers.addModifiers(game.combat.selectedArea.modifiers);
-            this.enemyModifiers.addModifiers(game.combat.selectedArea.enemyModifiers);
+            this.modifiers.addModifiers(this, game.combat.selectedArea.modifiers);
+            this.enemyModifiers.addModifiers(this, game.combat.selectedArea.enemyModifiers);
+        }
+    }
+
+    renderEnemyImageAndName() {
+        if(game.combat.selectedArea instanceof DungeoneeringPortalDungeon) {
+            let img = game.combat.enemy.statElements.image.querySelector('.combat-enemy-img');
+            if(img) {
+                let layer_arr = new Array(5).fill().map(() => createElement('div', {
+                    classList: ['glitch__layer'],
+                    attributes: [
+                        ['style', `background-image: url('${img.src}')`]
+                    ]
+                }));
+
+                let layers = createElement('div', {
+                    classList: ['glitch__layers'],
+                    children: layer_arr
+                });
+                let glitch = createElement('div', {
+                    classList: ['glitch'],
+                    children: [layers]
+                });
+                let enemy_img = createElement('div', {
+                    classList: ['combat-enemy-img'],
+                    attributes: [
+                        ['style', 'height: 230px']
+                    ],
+                    children: [glitch]
+                })
+                img.remove();
+                game.combat.enemy.statElements.image.append(enemy_img);
+            }
         }
     }
 
     onLoad() {
         super.onLoad();
+        
+        this.calculateModifiers();
+        this.renderQueue.upgradeModifiers = true;
+        this.renderQueue.portals = true;
 
         if(game.currentGamemode.allowDungeonLevelCapIncrease === true)
-            game.currentGamemode.startingSkills.add(game.enchanting);
-    }
-
-    checkForPortal(portal) {
-        if(portal.clearCount >= portal.clears)
-            return false;
-        return true;
+            game.currentGamemode.startingSkills.add(game.dungeoneering);
     }
 
     addPortalToMenu(portal) {
-        const element = new DungeoneeringCombatAreaMenuElement();
-        element.className = 'col-12 col-md-6 col-xl-4';
-        element.setArea(portal);
-        areaMenus.dungeoneering.container.append(element);
-        areaMenus.dungeoneering.menuElems.set(portal, element);
-        element.updateRequirements(portal);
-        return element;
+        let combatCategory = combatAreaMenus.all.get(game.combatAreaCategories.getObjectByID('dungeoneering:Dungeoneering'));
+        const combatAreaMenuElement = new DungeoneeringCombatAreaMenuElement();
+        combatAreaMenuElement.className = 'col-12 col-md-6 col-xl-4';
+        combatAreaMenuElement.setArea(portal);
+        combatCategory.container.append(combatAreaMenuElement);
+        combatCategory.menuElems.set(portal, combatAreaMenuElement);
+        combatAreaMenuElement.updateRequirements(portal);
+        this.renderQueue.portals = true;
+    }
+
+    removePortalFromMenu(portal) {
+        let combatCategory = combatAreaMenus.all.get(game.combatAreaCategories.getObjectByID('dungeoneering:Dungeoneering'));
+        let combatAreaMenuElement = combatCategory.menuElems.get(portal);
+        combatAreaMenuElement.remove();
+        combatCategory.menuElems.delete(portal);
+        this.renderQueue.portals = true;
     }
 
     handleMissingObject(namespacedID) {
@@ -247,23 +252,104 @@ export class Dungeoneering extends SkillWithMastery {
         return obj;
     }
 
+    loadUpgrades() {
+        const sortedActions = this.upgrades.allObjects;
+        sortedActions.forEach((upgrade)=>{
+            const upgradeMenu = createElement('dungeoneering-upgrade', {
+                className: 'col-12 col-lg-6 col-xl-3'
+            });
+            this.upgradeMenus.set(upgrade, upgradeMenu);
+            this.page.upgrades.append(upgradeMenu);
+            upgradeMenu.setUpgrade(upgrade);
+        });
+    }
+
+    onInterfaceAvailable() {
+        document.getElementById('main-container').append(this.page);
+    }
+
     onCharacterLoaded() {
         if(game.currentGamemode.allowDungeonLevelCapIncrease === true && !this.isUnlocked)
             this.setUnlock(true);
         
+        let category = combatAreaMenus.all.get(game.combatAreaCategories.getObjectByID('dungeoneering:Dungeoneering'));
+
         this.portals.allObjects.forEach(portal => {
-            if(!areaMenus.dungeoneering.menuElems.has(portal))
+            if(!category.menuElems.has(portal))
                 this.addPortalToMenu(portal);
         });
+        this.page.setCategories([
+            {
+                id: 'portals-category',
+                name: 'Portals',
+                media: this.media
+            },
+            {
+                id: 'upgrades-category',
+                name: 'Upgrades',
+                media: assets.getURI("assets/media/skills/strength/strength.svg")
+            }
+        ]);
+
+        this.page.portalMenu.init();
+
+        this.loadUpgrades();
+    }
+
+    get guaranteedDungeonModifiers() {
+        return [
+            ["decreasedDamageReduction", 10, 80],
+            ["decreasedMaxHitPercent", 25, 50],
+            ["decreasedMaxHitpoints", 10, 50]
+        ]
+    }
+
+    get guaranteedDungeonEnemyModifiers() {
+        return [
+            ["increasedDamageReduction", 10, 40],
+            ["increasedMaxHitPercent", 50, 200],
+            ["increasedMaxHitpoints", 50, 200]
+        ]
+    }
+
+    get randomDungeonModifiers() {
+        return [
+            ["decreasedHitpointRegeneration", 50, 100],
+            ["decreasedDamageToBosses", 10, 25],
+            ["decreasedAutoEatThreshold", 10, 25],
+            ["decreasedFoodHealingValue", 25, 50],
+            ["increasedAttackIntervalPercent", 10, 50],
+            ["increasedPrayerCost", 200, 500]
+        ]
+    }
+
+    get randomDungeonEnemyModifiers() {
+        return [
+            ["decreasedAttackIntervalPercent", 10, 50],
+            ["increasedLifesteal", 10, 50],
+            ["increasedReflectDamage", 10, 50],
+            ["increasedMeleeEvasion", 10, 50],
+            ["increasedRangedEvasion", 10, 50],
+            ["increasedMagicEvasion", 10, 50]
+        ]
     }
     
-    createDungeoneeringPortal() {
-        let portal = new DungeoneeringPortalDungeon({}, this, this.game);
+    createDungeoneeringPortal({...args}={}) {
+        let {
+            minCombatLevel=1,
+            maxCombatLevel=2000
+        } = args;
+
+        let portal = new DungeoneeringPortalDungeon({
+            combatLevel: rollInteger(minCombatLevel, maxCombatLevel),
+            ...args
+        }, this, this.game);
+
         this.portals.registerObject(portal);
         this.game.dungeons.registerObject(portal);
 
         if(game.softDataRegQueue.length > 0) {
-            game.softDataRegQueue.forEach(([data,object])=>object.registerSoftDependencies(data, game));
+            game.softDataRegQueue.forEach(({data,object})=>object.registerSoftDependencies(data, game));
             game.softDataRegQueue = [];
         }
         
@@ -273,20 +359,45 @@ export class Dungeoneering extends SkillWithMastery {
     }
 
     removeDungeoneeringPortal(portal) {
-        if(item.constructor !== DungeoneeringPortalDungeon)
-            return;
-        if(this.checkForPortal(item))
+        if(!this.isDungeoneeringPortal(portal))
             return;
         console.log("Removed Portal:", portal.id, portal.name);
         this.game.dungeons.registeredObjects.delete(portal.id);
-        this.equipment.registeredObjects.delete(portal.id);
+        this.game.combat.dungeonCompletion.delete(portal);
+        this.portals.registeredObjects.delete(portal.id);
+        this.removePortalFromMenu(portal);
+    }
+
+    isDungeoneeringPortal(portal) {
+        return portal instanceof DungeoneeringPortalDungeon;
+    }
+
+    registerData(namespace, data) {
+        super.registerData(namespace, data);
+
+        if(data.upgrades !== undefined) {
+            console.log(`Registering ${data.upgrades.length} Upgrades`);
+            data.upgrades.forEach(data => {
+                let upgrade = new DungeoneeringUpgrade(namespace, data, this, this.game);
+                this.upgrades.registerObject(upgrade);
+            });
+        }
+
+        if(data.dimensions !== undefined) {
+            console.log(`Registering ${data.dimensions.length} Dimensions`);
+            data.dimensions.forEach(data => {
+                let dimension = new DungeoneeringDimension(namespace, data, this, this.game);
+                this.dimensions.registerObject(dimension);
+            });
+        }
     }
 
     encode(writer) {
         let start = writer.byteOffset;
         super.encode(writer); // Encode default skill data
         writer.writeUint32(this.version);
-        writer.writeArray(this.portals.allObjects.filter((portal) => this.checkForPortal(portal)), (value, writer) => {
+        writer.writeMap(this.upgradeRanks, writeNamespaced, (value, writer) => writer.writeUint32(value));
+        writer.writeArray(this.portals.allObjects, (value, writer) => {
             writer.writeNamespacedObject(value);
             value.encode(writer);
         });
@@ -304,6 +415,7 @@ export class Dungeoneering extends SkillWithMastery {
         try {
             super.decode(reader, version);
             this.saveVersion = reader.getUint32();
+            this.upgradeRanks = reader.getMap(readNamespacedReject(this.upgrades), (reader) => reader.getUint32());
             reader.getArray((reader) => {
                 let value = reader.getNamespacedObject(this.portals);
                 console.log(`Got ${value.id}, decoding`);
@@ -312,7 +424,7 @@ export class Dungeoneering extends SkillWithMastery {
             });
 
             if(game.softDataRegQueue.length > 0) {
-                game.softDataRegQueue.forEach(([data,object])=>object.registerSoftDependencies(data, game));
+                game.softDataRegQueue.forEach(({data,object})=>object.registerSoftDependencies(data, game));
                 game.softDataRegQueue = [];
             }
         } catch(e) { // Something's fucky, dump all progress and skip past the trash save data
@@ -322,7 +434,11 @@ export class Dungeoneering extends SkillWithMastery {
         }
 
         let end = reader.byteOffset;
-        console.log(`Read ${end-start} bytes for Dungeoneering save`);
+        console.log(`Read ${end-start} bytes for Dungeoneering save, expected ${skillDataSize}`);
+
+        if(end-start !== skillDataSize) {
+            reader.byteOffset = start;
+            reader.getFixedLengthBuffer(skillDataSize);
+        }
     }
 }
-

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://melvoridle.com/assets/schema/gameData.json",
+  "$schema": "https://www.melvoridle.com/assets/schema/gameData.json",
   "namespace": "dungeoneering",
   "data": {
     "pages": [
@@ -11,7 +11,7 @@
         "hasGameGuide": false,
         "canBeDefault": true,
         "customName": "Dungeoneering",
-        "skillSidebarCategoryID": "Passive",
+        "skillSidebarCategoryID": "Combat",
         "skills": [
           "dungeoneering:Dungeoneering"
         ]
@@ -32,108 +32,200 @@
       }
     ],
     "ancientRelics": [
-        {
-            "id": "DungeoneeringRelic1",
-            "name": "Dungeoneering Relic 1 (NYI)",
-            "skillID": "dungeoneering:Dungeoneering",
-            "number": 1,
-            "description": "A relic from the ancient times of dungeoneering.",
-            "modifiers": {
-              
-            }
-        },
-        {
-            "id": "DungeoneeringRelic2",
-            "name": "Dungeoneering Relic 2 (NYI)",
-            "skillID": "dungeoneering:Dungeoneering",
-            "number": 2,
-            "description": "A relic from the ancient times of dungeoneering.",
-            "modifiers": {
-            }
-        },
-        {
-            "id": "DungeoneeringRelic3",
-            "name": "Dungeoneering Relic 3 (NYI)",
-            "skillID": "dungeoneering:Dungeoneering",
-            "number": 3,
-            "description": "A relic from the ancient times of dungeoneering.",
-            "modifiers": {
-            }
-        },
-        {
-            "id": "DungeoneeringRelic4",
-            "name": "Dungeoneering Relic 4 (NYI)",
-            "skillID": "dungeoneering:Dungeoneering",
-            "number": 4,
-            "description": "A relic from the ancient times of dungeoneering.",
-            "modifiers": {
-            }
-        },
-        {
-            "id": "DungeoneeringRelic5",
-            "name": "Dungeoneering Relic 5 (NYI)",
-            "skillID": "dungeoneering:Dungeoneering",
-            "number": 5,
-            "description": "A relic from the ancient times of dungeoneering.",
-            "modifiers": {
-            }
-        },
-        {
-            "id": "DungeoneeringRelic6",
-            "name": "Dungeoneering Master Relic (NYI)",
-            "skillID": "dungeoneering:Dungeoneering",
-            "number": 6,
-            "description": "A relic from the ancient times of dungeoneering.",
-            "modifiers": {
-            }
-        }
+      {
+        "id": "DungeoneeringRelic1",
+        "name": "Dungeoneering Relic 1 (NYI)",
+        "skillID": "dungeoneering:Dungeoneering",
+        "number": 1,
+        "description": "A relic from the ancient times of dungeoneering.",
+        "modifiers": {}
+      },
+      {
+        "id": "DungeoneeringRelic2",
+        "name": "Dungeoneering Relic 2 (NYI)",
+        "skillID": "dungeoneering:Dungeoneering",
+        "number": 2,
+        "description": "A relic from the ancient times of dungeoneering.",
+        "modifiers": {}
+      },
+      {
+        "id": "DungeoneeringRelic3",
+        "name": "Dungeoneering Relic 3 (NYI)",
+        "skillID": "dungeoneering:Dungeoneering",
+        "number": 3,
+        "description": "A relic from the ancient times of dungeoneering.",
+        "modifiers": {}
+      },
+      {
+        "id": "DungeoneeringRelic4",
+        "name": "Dungeoneering Relic 4 (NYI)",
+        "skillID": "dungeoneering:Dungeoneering",
+        "number": 4,
+        "description": "A relic from the ancient times of dungeoneering.",
+        "modifiers": {}
+      },
+      {
+        "id": "DungeoneeringRelic5",
+        "name": "Dungeoneering Relic 5 (NYI)",
+        "skillID": "dungeoneering:Dungeoneering",
+        "number": 5,
+        "description": "A relic from the ancient times of dungeoneering.",
+        "modifiers": {}
+      },
+      {
+        "id": "DungeoneeringRelic6",
+        "name": "Dungeoneering Master Relic (NYI)",
+        "skillID": "dungeoneering:Dungeoneering",
+        "number": 6,
+        "description": "A relic from the ancient times of dungeoneering.",
+        "modifiers": {}
+      }
+    ],
+    "combatAreaCategories": [
+      {
+        "id": "Dungeoneering",
+        "name": "Dungeoneering",
+        "media": "assets/dungeoneering.png",
+        "areas": []
+      }
+    ],
+    "combatAreaCategoryOrder": [
+      {
+        "insertAt": "After",
+        "afterID": "melvorF:Strongholds",
+        "ids": [
+          "dungeoneering:Dungeoneering"
+        ]
+      }
     ],
     "skillData": [
       {
         "skillID": "dungeoneering:Dungeoneering",
         "data": {
-          "completedAncientRelic": "dungeoneering:DungeoneeringRelic6",
-          "ancientRelics": [
-              {
+          "dimensions": [
+            {
+              "id": "fractured",
+              "name": "Fractured",
+              "media": "assets/dungeoneering.png",
+              "modifiers": [],
+              "enemyModifiers": []
+            },
+            {
+              "id": "volatile",
+              "name": "Volatile",
+              "media": "assets/dungeoneering.png",
+              "modifiers": [],
+              "enemyModifiers": []
+            }
+          ],
+          "upgrades": [
+            {
+              "id": "vigor",
+              "name": "Vigor",
+              "media": "melvor:assets/media/skills/hitpoints/hitpoints.svg",
+              "modifiers": {
+                "increasedFlatMaxHitpoints": 1
+              }
+            },
+            {
+              "id": "toughness",
+              "name": "Toughness",
+              "media": "melvor:assets/media/skills/defence/defence.svg",
+              "modifiers": {
+                "increasedDamageReduction": 1
+              }
+            },
+            {
+              "id": "might",
+              "name": "Might",
+              "media": "melvor:assets/media/skills/strength/strength.svg",
+              "modifiers": {
+                "increasedMaxHitPercent": 1
+              }
+            },
+            {
+              "id": "vitality",
+              "name": "Vitality",
+              "media": "melvor:assets/media/skills/hitpoints/hitpoints.svg",
+              "modifiers": {
+                "increasedMaxHitpoints": 1
+              }
+            },
+            {
+              "id": "ferocity",
+              "name": "Ferocity",
+              "media": "melvor:assets/media/skills/attack/attack.svg",
+              "max": 50,
+              "modifiers": {
+                "increasedMeleeCritChance": 1
+              }
+            },
+            {
+              "id": "cunning",
+              "name": "Cunning",
+              "media": "melvor:assets/media/skills/ranged/ranged.svg",
+              "max": 50,
+              "modifiers": {
+                "increasedRangedCritChance": 1
+              }
+            },
+            {
+              "id": "brilliance",
+              "name": "Brilliance",
+              "media": "melvor:assets/media/skills/magic/magic.svg",
+              "max": 50,
+              "modifiers": {
+                "increasedMagicCritChance": 1
+              }
+            }
+          ],
+          "ancientRelicSets": [
+            {
+              "realmID": "melvorD:Melvor",
+              "relicDrops": [
+                {
                   "relicID": "dungeoneering:DungeoneeringRelic1",
                   "requirements": [],
                   "chance": {
-                      "type": "Fixed",
-                      "chance": 0.0005
+                    "type": "Fixed",
+                    "chance": 0.0005
                   }
-              },
-              {
+                },
+                {
                   "relicID": "dungeoneering:DungeoneeringRelic2",
                   "requirements": [],
                   "chance": {
-                      "type": "Fixed",
-                      "chance": 0.0005
+                    "type": "Fixed",
+                    "chance": 0.0005
                   }
-              },
-              {
+                },
+                {
                   "relicID": "dungeoneering:DungeoneeringRelic3",
                   "requirements": [],
                   "chance": {
-                      "type": "Fixed",
-                      "chance": 0.0005
+                    "type": "Fixed",
+                    "chance": 0.0005
                   }
-              },
-              {
+                },
+                {
                   "relicID": "dungeoneering:DungeoneeringRelic4",
                   "requirements": [],
                   "chance": {
-                      "type": "Fixed",
-                      "chance": 0.0005
+                    "type": "Fixed",
+                    "chance": 0.0005
                   }
-              },
-              {
+                },
+                {
                   "relicID": "dungeoneering:DungeoneeringRelic5",
                   "requirements": [],
                   "chance": {
-                      "type": "Fixed",
-                      "chance": 0.0005
+                    "type": "Fixed",
+                    "chance": 0.0005
                   }
-              }
+                }
+              ],
+              "completedRelicID": "dungeoneering:DungeoneeringRelic6"
+            }
           ]
         }
       }

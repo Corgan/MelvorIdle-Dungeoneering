@@ -1,9 +1,13 @@
-export async function setup({ characterStorage, gameData, patch, getResourceUrl, loadTemplates, loadModule, onInterfaceAvailable, onCharacterLoaded }) {
+export async function setup({ characterStorage, gameData, patch, getResourceUrl, loadTemplates, loadStylesheet, loadModule, onInterfaceAvailable, onCharacterLoaded, onModsLoaded }) {
     console.log("Loading Dungeoneering Templates");
     await loadTemplates("templates.html"); // Add templates
+    
+    console.log("Loading Dungeoneering Stylesheet");
+    await loadStylesheet('style.css');
   
     console.log("Loading Dungeoneering Module");
     const { Dungeoneering } = await loadModule('src/dungeoneering.mjs');
+    const { DungeoneeringCombatAreaMenuElement } = await loadModule('src/components/dungeoneering-combat-area-menu.mjs');
 
     game.dungeoneering = game.registerSkill(game.registeredNamespaces.getNamespace('dungeoneering'), Dungeoneering); // Register skill
 
@@ -12,27 +16,94 @@ export async function setup({ characterStorage, gameData, patch, getResourceUrl,
 
     console.log('Registered Dungeoneering Data.');
 
-    const _determineRandomSkillsForUnlock = determineRandomSkillsForUnlock;
-    window.determineRandomSkillsForUnlock = function(...args) {
-        game.dungeoneering.setUnlock(false);
-        _determineRandomSkillsForUnlock(...args);
-        game.dungeoneering.setUnlock(true);
-    }
-
-    patch(CombatManager, 'onSelection').before(function() {
-        game.dungeoneering.onCombatSelection();
+    patch(Enemy, 'renderImageAndName').after(function() {
+        game.dungeoneering.renderEnemyImageAndName();
     });
 
-    patch(CombatManager, 'awardSkillLevelCapIncreaseForDungeonCompletion').before(function(dungeon) {
-        if (dungeon.id === "melvorF:Impending_Darkness" || dungeon.id === "melvorTotH:Throne_of_the_Herald") {
-            // We do nothing here beacuse it's handled in the base call
-        } else if (dungeon.namespace === "melvorTotH") {
-            const amount = Math.min(3, 120 - this.game.attack.overrideLevelCap);
-            this.game.dungeoneering.increaseLevelCap(amount);
-        } else {
-            const amount = Math.min(5, 99 - this.game.attack.overrideLevelCap);
-            this.game.dungeoneering.increaseLevelCap(amount);
+    patch(CombatManager, 'spawnEnemy').before(function() {
+        game.dungeoneering.onCombatSpawnEnemy();
+    });
+
+    patch(BaseManager, 'setCombatArea').before(function(area) {
+        if (this.selectedArea === area)
+            return;
+        if(game.dungeoneering.isDungeoneeringPortal(this.selectedArea)) {
+            this.player.modifiers.removeTable(game.dungeoneering.upgradeModifiers);
+            this.player.computePostModifierStats();
         }
+    });
+
+    patch(BaseManager, 'computeAreaEffects').before(function() {
+        if(game.dungeoneering.isDungeoneeringPortal(this.selectedArea)) {
+            this.player.modifiers.addTable(game.dungeoneering.upgradeModifiers);
+        }
+    });
+
+    patch(CombatManager, 'increaseDungeonProgress').after(function(stopCombat) {
+        if(game.dungeoneering.isDungeoneeringPortal(this.selectedArea)) {
+            if(this.selectedArea.attempts >= this.selectedArea.maxAttempts)
+                if (this.areaProgress === 0)
+                    return true;
+        }
+    });
+
+    patch(CombatManager, 'selectDungeon').replace(function(o, dungeon, ...args) {
+        if(game.dungeoneering.isDungeoneeringPortal(dungeon)) {
+            if(dungeon.attempts >= dungeon.maxAttempts) {
+                notifyPlayer(this.game.attack, 'This dungeon portal has been used up.', 'danger');
+                return;
+            }
+        }
+        o(dungeon, ...args);
+    });
+
+    patch(CombatManager, 'loadNextEnemy').after(function() {
+        if(game.dungeoneering.isDungeoneeringPortal(this.selectedArea)) {
+            if (this.areaProgress === 0) {
+                if(this.selectedArea.attempts < this.selectedArea.maxAttempts) {
+                    this.selectedArea.attempts += 1;
+                    this.renderQueue.attemptsCount.add(this.selectedArea);
+                    game.dungeoneering.renderQueue.portals = true;
+                }
+            }
+        }
+    });
+
+    patch(CombatManager, 'initialize').before(function() {
+        if(this.renderQueue.attemptsCount === undefined)
+            this.renderQueue.attemptsCount = new Set();
+        this.game.combatAreas.forEach((area)=>{
+            if(area instanceof DungeoneeringCombatAreaMenuElement) {
+                this.renderQueue.attemptsCount.add(area);
+            }
+        });
+    });
+    patch(CombatManager, 'render').after(function() {
+        this.renderCompletionCount();
+    });
+
+    CombatManager.prototype.renderCompletionCount = function() {
+        this.renderQueue.attemptsCount.forEach((area)=>{
+            combatAreaMenus.all.forEach((menu)=>menu.updateAttemptsCount(area));
+        });
+        this.renderQueue.attemptsCount.clear();
+    }
+    
+    CombatAreaMenu.prototype.updateAttemptsCount = function(area) {
+        const menu = this.menuElems.get(area);
+        menu === null || menu === void 0 ? void 0 : menu.updateAttemptsCount(area);
+    }
+
+    patch(CombatManager, 'addDungeonCompletion').replace(function(o, dungeon, ...args) {
+        if(game.dungeoneering.isDungeoneeringPortal(dungeon)) {
+        } else {
+            o(dungeon, ...args);
+        }
+    });
+
+    patch(ViewMonsterListTableRowElement, 'setRow').after(function(_, monster, count) {
+        if(monster.isDungeoneering !== undefined && monster.isDungeoneering === true)
+            this.setSeenMonster(monster, count);
     });
 
     patch(NamespaceRegistry, 'getObjectByID').replace(function(o, id) {
@@ -44,62 +115,10 @@ export async function setup({ characterStorage, gameData, patch, getResourceUrl,
     });
 
     onCharacterLoaded(async () => {
-        areaMenus.dungeoneering = new CombatAreaMenu('combat-select-area-Dungeoneering', []);
-        game.dungeoneering.onCharacterLoaded();
+        await game.dungeoneering.onCharacterLoaded();
     });
 
     onInterfaceAvailable(async () => {
-        game.dungeoneering.component.mount(document.getElementById('main-container')); // Add skill container
-        const dungeons = document.getElementById('combat-select-area-Dungeon');
-        dungeons.after(createElement('div', {
-            id: 'combat-select-area-Dungeoneering',
-            classList: ['row', 'row-deck', 'gutters-tiny', 'mt-3', 'd-none']
-        }));
-
-        const selection = document.getElementById('combat-area-selection');
-        selection.append(
-            createElement('div', {
-                classList: ['col-12', 'col-md-6', 'col-xl-4'],
-                children: [createElement('a', {
-                    id: 'combat-select-Dungeoneering',
-                    attributes: [
-                        ['onclick', "showCombatArea('Dungeoneering')"]
-                    ],
-                    classList: ['block', 'block-content', 'block-rounded', 'block-link-pop', 'border-top', 'border-combat', 'border-4x', 'pointer-enabled'],
-                    children: [createElement('div', {
-                        classList: ['media', 'd-flex', 'align-items-center', 'push'],
-                        children: [createElement('div', {
-                            classList: ['mr-3'],
-                            children: [createElement('img', {
-                                classList: ['shop-img'],
-                                attributes: [
-                                    ['src', game.dungeoneering.media]
-                                ]
-                            })]
-                        }), createElement('div', {
-                            classList: ['media-body'],
-                            children: [createElement('div', {
-                                classList: ['font-w600'],
-                                children: [createElement('span', {
-                                    text: "Dungeoneering"
-                                })]
-                            }),
-                            createElement('div', {
-                                classList: ['font-size-sm'],
-                                children: [createElement('small', {
-                                    text: "Generate random Dungeons"
-                                })]
-                            }),
-                            createElement('div', {
-                                classList: ['font-size-sm'],
-                                children: [createElement('small', {
-                                    text: "Rewards based on difficulty"
-                                })]
-                            })]
-                        })]
-                    })]
-                })]
-            })
-        )
+        await game.dungeoneering.onInterfaceAvailable();
     });
 }
