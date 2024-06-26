@@ -269,9 +269,6 @@ export class Dungeoneering extends Skill {
     }
 
     onCharacterLoaded() {
-        if(game.currentGamemode.allowDungeonLevelCapIncrease === true && !this.isUnlocked)
-            this.setUnlock(true);
-        
         let category = combatAreaMenus.all.get(game.combatAreaCategories.getObjectByID('dungeoneering:Dungeoneering'));
 
         this.portals.allObjects.forEach(portal => {

@@ -12,7 +12,38 @@ export async function setup({ characterStorage, gameData, patch, getResourceUrl,
     game.dungeoneering = game.registerSkill(game.registeredNamespaces.getNamespace('dungeoneering'), Dungeoneering); // Register skill
 
     console.log("Registering Dungeoneering Data");
-    await gameData.addPackage('data.json'); // Add skill data (page + sidebar, skillData)
+    await gameData.addPackage('data/data.json'); // Add skill data (page + sidebar, skillData)
+
+    if(cloudManager.hasAoDEntitlementAndIsEnabled) {
+        await gameData.addPackage('data/data-aod.json');
+
+        const levelCapIncreases = ['dungeoneering:Pre99Dungeons', 'dungeoneering:ImpendingDarknessSet100'];
+
+        if(cloudManager.hasTotHEntitlementAndIsEnabled) {
+            levelCapIncreases.push(...['dungeoneering:Post99Dungeons', 'dungeoneering:ThroneOfTheHeraldSet120']);
+        }
+
+        await gameData.addPackage({
+            $schema: '',
+            namespace: 'dungeoneering',
+            modifications: {
+                gamemodes: [
+                    {
+                        id: 'melvorAoD:AncientRelics',
+                        levelCapIncreases: {
+                            add: levelCapIncreases
+                        }
+                    }
+                ]
+            }
+        });
+    }
+    
+    patch(EventManager, 'loadEvents').after(() => {
+        if(game.currentGamemode.startingSkills !== undefined && game.currentGamemode.startingSkills.has(game.dungeoneering)) {
+            game.dungeoneering.setUnlock(true);
+        }
+    });
 
     console.log('Registered Dungeoneering Data.');
 
