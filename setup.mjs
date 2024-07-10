@@ -1,4 +1,4 @@
-export async function setup({ characterStorage, gameData, patch, getResourceUrl, loadTemplates, loadStylesheet, loadModule, onInterfaceAvailable, onCharacterLoaded, onModsLoaded }) {
+export async function setup({ characterStorage, gameData, patch, getResourceUrl, loadTemplates, loadStylesheet, loadModule, onModsLoaded, onInterfaceAvailable, onCharacterLoaded }) {
     console.log("Loading Dungeoneering Templates");
     await loadTemplates("templates.html"); // Add templates
     
@@ -14,36 +14,8 @@ export async function setup({ characterStorage, gameData, patch, getResourceUrl,
     console.log("Registering Dungeoneering Data");
     await gameData.addPackage('data/data.json'); // Add skill data (page + sidebar, skillData)
 
-    if(cloudManager.hasAoDEntitlementAndIsEnabled) {
+    if(cloudManager.hasAoDEntitlementAndIsEnabled)
         await gameData.addPackage('data/data-aod.json');
-
-        const levelCapIncreases = ['dungeoneering:Pre99Dungeons', 'dungeoneering:ImpendingDarknessSet100'];
-
-        if(cloudManager.hasTotHEntitlementAndIsEnabled) {
-            levelCapIncreases.push(...['dungeoneering:Post99Dungeons', 'dungeoneering:ThroneOfTheHeraldSet120']);
-        }
-
-        await gameData.addPackage({
-            $schema: '',
-            namespace: 'dungeoneering',
-            modifications: {
-                gamemodes: [
-                    {
-                        id: 'melvorAoD:AncientRelics',
-                        levelCapIncreases: {
-                            add: levelCapIncreases
-                        }
-                    }
-                ]
-            }
-        });
-    }
-    
-    patch(EventManager, 'loadEvents').after(() => {
-        if(game.currentGamemode.startingSkills !== undefined && game.currentGamemode.startingSkills.has(game.dungeoneering)) {
-            game.dungeoneering.setUnlock(true);
-        }
-    });
 
     console.log('Registered Dungeoneering Data.');
 
@@ -143,6 +115,52 @@ export async function setup({ characterStorage, gameData, patch, getResourceUrl,
             return game.dungeoneering.handleMissingObject(id);
         }
         return obj;
+    });
+
+    onModsLoaded(async () => {
+        if(cloudManager.hasAoDEntitlementAndIsEnabled) {
+            const levelCapIncreases = ['dungeoneering:Pre99Dungeons', 'dungeoneering:ImpendingDarknessSet100'];
+
+            if(cloudManager.hasTotHEntitlementAndIsEnabled) {
+                levelCapIncreases.push(...['dungeoneering:Post99Dungeons', 'dungeoneering:ThroneOfTheHeraldSet120']);
+            }
+
+            const gamemodes = game.gamemodes.filter(gamemode => gamemode.defaultInitialLevelCap !== undefined && gamemode.levelCapIncreases.length > 0 && gamemode.useDefaultSkillUnlockRequirements === true && gamemode.allowSkillUnlock === false);
+
+            await gameData.addPackage({
+                $schema: '',
+                namespace: 'dungeoneering',
+                modifications: {
+                    gamemodes: gamemodes.map(gamemode => ({
+                        id: gamemode.id,
+                        levelCapIncreases: {
+                            add: levelCapIncreases
+                        },
+                        startingSkills: {
+                            add: ['dungeoneering:Dungeoneering']
+                        },
+                        skillUnlockRequirements: [
+                            {
+                                skillID: 'dungeoneering:Dungeoneering',
+                                requirements: [
+                                    {
+                                        type: 'SkillLevel',
+                                        skillID: 'melvorD:Attack',
+                                        level: 1
+                                    }
+                                ]
+                            }
+                        ]
+                    }))
+                }
+            });
+        }
+    
+        patch(EventManager, 'loadEvents').after(() => {
+            if(game.currentGamemode.startingSkills !== undefined && game.currentGamemode.startingSkills.has(game.dungeoneering)) {
+                game.dungeoneering.setUnlock(true);
+            }
+        });
     });
 
     onCharacterLoaded(async () => {
